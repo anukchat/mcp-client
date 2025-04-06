@@ -31,7 +31,13 @@ jobs:
         
     - name: Run tests
       run: |
-        pytest tests/ --cov=mcpwire
+        pytest tests/ --cov=mcpwire --cov-branch --cov-report=xml
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: anukchat/mcpwire
         
     - name: Lint with flake8
       if: ${{ matrix.python-version == '3.10' }}
