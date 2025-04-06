@@ -1,6 +1,10 @@
 # MCP Python Client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcp-client.svg)](https://badge.fury.io/py/mcp-client) [![Python Version](https://img.shields.io/pypi/pyversions/mcp-client.svg)](https://pypi.org/project/mcp-client/) [![Build Status](https://github.com/your-username/mcp-python-client/actions/workflows/test.yml/badge.svg)](https://github.com/your-username/mcp-python-client/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcp-client.svg)](https://badge.fury.io/py/mcp-client) [![Python Version](https://img.shields.io/pypi/pyversions/mcp-client.svg)](https://pypi.org/project/mcp-client/) [![Build Status](https://github.com/anukchat/mcp-python-client/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcp-python-client/actions/workflows/test.yml)
+[![Coverage Status](https://codecov.io/gh/anukchat/mcp-python-client/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcp-python-client)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/mcp-client.svg)](https://pypi.org/project/mcp-client/)
+[![Documentation Status](https://readthedocs.org/projects/mcp-python-client/badge/?version=latest)](https://mcp-python-client.readthedocs.io/en/latest/?badge=latest)
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
@@ -28,10 +32,10 @@ pip install mcp-client
 pip install mcp-client[dev]
 
 # Or directly from GitHub
-pip install git+https://github.com/your-username/mcp-python-client.git # Replace with your repo URL
+pip install git+https://github.com/anukchat/mcp-python-client.git
 
 # Or for development
-git clone https://github.com/your-username/mcp-python-client.git
+git clone https://github.com/anukchat/mcp-python-client.git
 cd mcp-python-client
 pip install -e .
 ```
@@ -200,7 +204,7 @@ Version 0.4.0 introduces significant changes by migrating to the official MCP li
 
 ## Development
 
-- Clone: `git clone https://github.com/your-username/mcp-python-client.git`
+- Clone: `git clone https://github.com/anukchat/mcp-python-client.git`
 - Setup Env: Create and activate a virtual environment
 - Install Dev Dependencies: `pip install -e ".[dev]"`
 
