@@ -1,10 +1,11 @@
 # MCP Python Client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcp-client.svg)](https://badge.fury.io/py/mcp-client) [![Python Version](https://img.shields.io/pypi/pyversions/mcp-client.svg)](https://pypi.org/project/mcp-client/) [![Build Status](https://github.com/anukchat/mcp-python-client/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcp-python-client/actions/workflows/test.yml)
-[![Coverage Status](https://codecov.io/gh/anukchat/mcp-python-client/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcp-python-client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcp-client.svg)](https://badge.fury.io/py/mcp-client) [![Python Version](https://img.shields.io/pypi/pyversions/mcp-client.svg)](https://pypi.org/project/mcp-client/) [![Tests](https://github.com/anukchat/mcp-client/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcp-client/actions/workflows/test.yml)
+[![Publish](https://github.com/anukchat/mcp-client/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcp-client/actions/workflows/publish.yml)
+[![Coverage Status](https://codecov.io/gh/anukchat/mcp-client/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcp-client)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/mcp-client.svg)](https://pypi.org/project/mcp-client/)
-[![Documentation Status](https://readthedocs.org/projects/mcp-python-client/badge/?version=latest)](https://mcp-python-client.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/mcp-client/badge/?version=latest)](https://mcp-client.readthedocs.io/en/latest/?badge=latest)
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
