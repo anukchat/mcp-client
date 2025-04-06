@@ -46,22 +46,32 @@ async def example_direct_initialization():
         # Create a client with direct initialization
         # Note: The official MCP library supports "sse" transport, not "http"
         client = MCPClient(
-            base_url="http://localhost:8000", 
+            base_url="http://localhost:8000/sse",
             transport="sse",
             timeout=30,
             api_key=None  # Optional API key
         )
         
         async with client as mcp:
-            # Get server metadata
-            metadata = await mcp.get_server_metadata()
-            logger.info(f"Connected to MCP server: {metadata.name} v{metadata.version}")
-            
             # List available tools
             tools = await mcp.list_tools()
             logger.info(f"Server provides {len(tools)} tools")
             for tool in tools:
                 logger.info(f"Tool: {tool.name} - {tool.description}")
+            
+            # Call the add tool from math_server.py
+            try:
+                result = await mcp.call_tool("add", {"a": 5, "b": 7})
+                logger.info(f"Result of add(5, 7): {result}")
+            except Exception as e:
+                logger.error(f"Error calling 'add' tool: {e}")
+            
+            # Call the multiply tool from math_server.py
+            try:
+                result = await mcp.call_tool("multiply", {"a": 6, "b": 8})
+                logger.info(f"Result of multiply(6, 8): {result}")
+            except Exception as e:
+                logger.error(f"Error calling 'multiply' tool: {e}")
     
     except MCPConnectionError as e:
         logger.error(f"Connection error: {e}")
