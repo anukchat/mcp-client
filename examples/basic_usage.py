@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# mcp-python-client/examples/basic_usage.py
+# mcpwire/examples/basic_usage.py
 
 """
 Basic Usage Example for MCP Client (v0.4.0+ with official MCP library)
@@ -185,9 +185,9 @@ async def run_all_examples():
     """Run all examples in sequence."""
     try:
         await example_direct_initialization()
-        await example_config_file_initialization()  
-        await example_multi_server_client()
-        await example_error_handling()
+        # await example_config_file_initialization()  
+        # await example_multi_server_client()
+        # await example_error_handling()
     except Exception as e:
         logger.error(f"Error running examples: {e}", exc_info=True)
 

@@ -1,4 +1,4 @@
-# mcp-python-client/mcpwire/__init__.py
+# mcpwire/mcpwire/__init__.py
 
 """
 MCP Client Package Initialization.

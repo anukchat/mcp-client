@@ -33,11 +33,11 @@ pip install mcpwire
 pip install mcpwire[dev]
 
 # Or directly from GitHub
-pip install git+https://github.com/anukchat/mcp-python-client.git
+pip install git+https://github.com/anukchat/mcpwire.git
 
 # Or for development
-git clone https://github.com/anukchat/mcp-python-client.git
-cd mcp-python-client
+git clone https://github.com/anukchat/mcpwire.git
+cd mcpwire
 pip install -e .
 ```
 
@@ -205,7 +205,7 @@ Version 0.4.0 introduces significant changes by migrating to the official MCP li
 
 ## Development
 
-- Clone: `git clone https://github.com/anukchat/mcp-python-client.git`
+- Clone: `git clone https://github.com/anukchat/mcpwire.git`
 - Setup Env: Create and activate a virtual environment
 - Install Dev Dependencies: `pip install -e ".[dev]"`
 

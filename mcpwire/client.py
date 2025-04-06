@@ -1,4 +1,4 @@
-# mcp-python-client/mcpwire/client.py
+# mcpwire/mcpwire/client.py
 
 """
 Core MCPClient class for interacting with an MCP server.

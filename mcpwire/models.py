@@ -1,4 +1,4 @@
-# mcp-python-client/mcpwire/models.py
+# mcpwire/mcpwire/models.py
 
 """
 Pydantic models for validating and representing MCP request and response data structures.

@@ -1,4 +1,4 @@
-# mcp-python-client/pyproject.toml
+# mcpwire/pyproject.toml
 
 # Defines the build system requirements and backend.
 [build-system]

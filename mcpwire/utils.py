@@ -1,4 +1,4 @@
-# mcp-python-client/mcpwire/utils.py
+# mcpwire/mcpwire/utils.py
 
 """
 Utility functions for the MCP client.

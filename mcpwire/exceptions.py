@@ -1,4 +1,4 @@
-# mcp-python-client/mcpwire/exceptions.py
+# mcpwire/mcpwire/exceptions.py
 
 """
 Custom exception classes for the MCP client.

@@ -1,4 +1,4 @@
-# mcp-python-client/tests/test_client.py
+# mcpwire/tests/test_client.py
 
 """
 Unit tests for the MCPClient.
