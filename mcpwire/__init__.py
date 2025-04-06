@@ -1,9 +1,9 @@
-# mcp-python-client/mcp_client/__init__.py
+# mcp-python-client/mcpwire/__init__.py
 
 """
 MCP Client Package Initialization.
 
-This file makes the core components of the mcp_client package easily importable
+This file makes the core components of the mcpwire package easily importable
 and defines the package version.
 
 The implementation has been updated to use the official MCP library and
@@ -43,7 +43,7 @@ from .models import (
     ToolParameterProperty,
 )
 
-# Define __all__ to control what `from mcp_client import *` imports
+# Define __all__ to control what `from mcpwire import *` imports
 # Note: Class methods like from_config are accessed via the class (MCPClient.from_config)
 # and don't need to be in __all__.
 __all__ = [

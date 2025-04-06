@@ -7,7 +7,7 @@ This guide provides detailed usage instructions for the MCP client library, whic
 ### Installation
 
 ```bash
-pip install mcp-client
+pip install mcpwire
 ```
 
 ### Async Nature of the API
@@ -16,7 +16,7 @@ Starting with version 0.4.0, the client API is asynchronous, requiring the use o
 
 ```python
 import asyncio
-from mcp_client import MCPClient
+from mcpwire import MCPClient
 
 async def main():
     client = MCPClient(base_url="http://localhost:8000", transport="sse")
@@ -35,7 +35,7 @@ There are two ways to initialize the client:
 1. **Direct Initialization**:
 
 ```python
-from mcp_client import MCPClient
+from mcpwire import MCPClient
 
 client = MCPClient(
     base_url="http://localhost:8000",
@@ -48,7 +48,7 @@ client = MCPClient(
 2. **From Configuration File**:
 
 ```python
-from mcp_client import MCPClient
+from mcpwire import MCPClient
 
 client = MCPClient.from_config(server_name="local")
 ```
@@ -116,7 +116,7 @@ print(f"Tool result: {result}")
 The library now includes a `MultiServerMCPClient` that allows connecting to multiple MCP servers:
 
 ```python
-from mcp_client import MultiServerMCPClient
+from mcpwire import MultiServerMCPClient
 
 connections = {
     "math": {
@@ -155,7 +155,7 @@ async with MultiServerMCPClient(connections) as multi_client:
 The library makes it easy to integrate with LangChain:
 
 ```python
-from mcp_client import MultiServerMCPClient
+from mcpwire import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_openai_tools_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate
@@ -191,7 +191,7 @@ async with MultiServerMCPClient(connections) as multi_client:
 The library provides several exception types for handling different error cases:
 
 ```python
-from mcp_client import (
+from mcpwire import (
     MCPError,             # Base exception
     MCPConnectionError,   # Connection issues
     MCPTimeoutError,      # Request timeouts

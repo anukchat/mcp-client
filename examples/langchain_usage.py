@@ -16,7 +16,7 @@ import logging
 from typing import List, Dict, Any
 
 # Import MCP client
-from mcp_client import (
+from mcpwire import (
     MultiServerMCPClient,
     MCPConnectionError,
     MCPError

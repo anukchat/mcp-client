@@ -1,6 +1,6 @@
-# GitHub Actions CI/CD for mcp-client
+# GitHub Actions CI/CD for mcpwire
 
-This directory contains GitHub Actions workflows to automate the build and publishing process for the mcp-client package.
+This directory contains GitHub Actions workflows to automate the build and publishing process for the mcpwire package.
 
 ## publish.yml
 
@@ -16,7 +16,7 @@ This workflow builds and publishes the package to PyPI when a new tag is pushed.
      - `TEST_PYPI_API_TOKEN`: Your TestPyPI API token
 
 2. **Release process**:
-   - Update version in `pyproject.toml` and `mcp_client/__init__.py`
+   - Update version in `pyproject.toml` and `mcpwire/__init__.py`
    - Commit changes and push to GitHub
    - Create and push a new tag that matches the version:
    

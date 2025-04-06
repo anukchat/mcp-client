@@ -18,7 +18,7 @@ from unittest.mock import patch, mock_open, AsyncMock, MagicMock
 import pytest_asyncio
 from aioresponses import aioresponses
 
-from mcp_client import (
+from mcpwire import (
     MCPClient,
     MultiServerMCPClient,
     MCPAPIError,
@@ -40,8 +40,8 @@ DEFAULT_TIMEOUT_VAL = 60
 async def mock_client():
     """Provides a mocked MCPClient instance with patched _initialize method."""
     client = MCPClient(base_url=MOCK_SERVER_URL, transport="sse", api_key=MOCK_API_KEY, timeout=5)
-    # Create a mock for the _mcp_client attribute
-    client._mcp_client = AsyncMock()
+    # Create a mock for the _mcpwire attribute
+    client._mcpwire = AsyncMock()
     client._exit_stack = AsyncMock()
     client._initialized = True
     
@@ -55,12 +55,12 @@ async def mock_client():
 @pytest_asyncio.fixture
 async def mock_multi_client():
     """Provides a mocked MultiServerMCPClient instance."""
-    # Create a mock for the underlying _mcp_client
-    mock_mcp_client = AsyncMock()
+    # Create a mock for the underlying _mcpwire
+    mock_mcpwire = AsyncMock()
     
     # Create the MultiServerMCPClient instance
     multi_client = MultiServerMCPClient()
-    multi_client._mcp_client = mock_mcp_client
+    multi_client._mcpwire = mock_mcpwire
     
     yield multi_client
 
@@ -139,7 +139,7 @@ def test_client_initialization_env_api_key_not_found(monkeypatch):
 
 # Update this test based on your implementation - either skip or modify based on how 
 # MCPClient handles HTTP transport
-@patch("mcp_client.client.MCPClient.__init__", return_value=None)
+@patch("mcpwire.client.MCPClient.__init__", return_value=None)
 def test_client_initialization_http_transport(mock_init):
     """Skip this test if it's not applicable to the current implementation."""
     pytest.skip("HTTP transport behavior has changed in the implementation - test may need to be removed or updated")
@@ -188,8 +188,8 @@ def test_from_config_invalid_json(tmp_path: Path):
     with pytest.raises(MCPDataError, match="Invalid JSON"):
         MCPClient.from_config(config_path=str(invalid_json_path))
 
-@patch("mcp_client.client.Path.home")
-@patch("mcp_client.client.Path.cwd")
+@patch("mcpwire.client.Path.home")
+@patch("mcpwire.client.Path.cwd")
 def test_find_config_file_search_order(mock_cwd, mock_home, tmp_path: Path):
     """Test the search order for the config file."""
     # Setup mock paths
@@ -230,9 +230,9 @@ def test_find_config_file_search_order(mock_cwd, mock_home, tmp_path: Path):
 # == Async Client Method Tests ==
 
 @pytest.mark.asyncio
-@patch("mcp_client.client.ClientSession")
-@patch("mcp_client.client.sse_client")
-@patch("mcp_client.client.AsyncExitStack")
+@patch("mcpwire.client.ClientSession")
+@patch("mcpwire.client.sse_client")
+@patch("mcpwire.client.AsyncExitStack")
 async def test_initialize_method(mock_exit_stack_class, mock_sse_client, mock_client_session):
     """Test the _initialize method for SSE transport using patched context."""
     # Create mocks
@@ -270,7 +270,7 @@ async def test_initialize_method(mock_exit_stack_class, mock_sse_client, mock_cl
     
     # Check that the correct methods were called
     mock_sse_client.assert_called_once()
-    assert client._mcp_client == mock_session
+    assert client._mcpwire == mock_session
     mock_session.initialize.assert_called_once()
 
 @pytest.mark.asyncio
@@ -282,13 +282,13 @@ async def test_get_server_metadata(mock_client):
     server_info.name = "Test Server"
     server_info.version = "1.0.0"
     server_info.description = "A test server"
-    mock_client._mcp_client.get_server_info.return_value = server_info
+    mock_client._mcpwire.get_server_info.return_value = server_info
     
     # Call the method
     result = await mock_client.get_server_metadata()
     
     # Check the result
-    mock_client._mcp_client.get_server_info.assert_called_once()
+    mock_client._mcpwire.get_server_info.assert_called_once()
     assert isinstance(result, ServerMetadata)
     # Since ServerMetadata doesn't have a server_id attribute, we'll just check if it's an instance
     # and that the method completed without errors
@@ -303,13 +303,13 @@ async def test_list_tools(mock_client, monkeypatch):
     # Setup mock for load_mcp_tools
     mock_tools = [MagicMock()]
     mock_load_tools = AsyncMock(return_value=mock_tools)
-    monkeypatch.setattr("mcp_client.client.load_mcp_tools", mock_load_tools)
+    monkeypatch.setattr("mcpwire.client.load_mcp_tools", mock_load_tools)
     
     # Call the method
     result = await mock_client.list_tools()
     
     # Check the result
-    mock_load_tools.assert_called_once_with(mock_client._mcp_client)
+    mock_load_tools.assert_called_once_with(mock_client._mcpwire)
     assert result == mock_tools
 
 @pytest.mark.asyncio
@@ -318,13 +318,13 @@ async def test_get_prompt(mock_client, monkeypatch):
     # Setup mock for load_mcp_prompt
     mock_messages = [HumanMessage(content="Hello"), AIMessage(content="Hi")]
     mock_load_prompt = AsyncMock(return_value=mock_messages)
-    monkeypatch.setattr("mcp_client.client.load_mcp_prompt", mock_load_prompt)
+    monkeypatch.setattr("mcpwire.client.load_mcp_prompt", mock_load_prompt)
     
     # Call the method
     result = await mock_client.get_prompt("test_prompt", {"param": "value"})
     
     # Check the result
-    mock_load_prompt.assert_called_once_with(mock_client._mcp_client, "test_prompt", {"param": "value"})
+    mock_load_prompt.assert_called_once_with(mock_client._mcpwire, "test_prompt", {"param": "value"})
     assert result == mock_messages
 
 @pytest.mark.asyncio
@@ -332,13 +332,13 @@ async def test_call_tool(mock_client):
     """Test calling a tool on the server."""
     # Setup mock return value
     mock_result = {"result": "success"}
-    mock_client._mcp_client.call_tool.return_value = mock_result
+    mock_client._mcpwire.call_tool.return_value = mock_result
     
     # Call the method
     result = await mock_client.call_tool("test_tool", {"param": "value"})
     
     # Check the result
-    mock_client._mcp_client.call_tool.assert_called_once_with("test_tool", {"param": "value"})
+    mock_client._mcpwire.call_tool.assert_called_once_with("test_tool", {"param": "value"})
     assert result == mock_result
 
 @pytest.mark.asyncio
@@ -383,7 +383,7 @@ async def test_multi_client_connect_to_server(mock_multi_client):
     )
     
     # Check that the underlying connect_to_server was called
-    mock_multi_client._mcp_client.connect_to_server.assert_called_once_with(
+    mock_multi_client._mcpwire.connect_to_server.assert_called_once_with(
         "test_server",
         transport="stdio",
         command="python",
@@ -395,13 +395,13 @@ async def test_multi_client_get_tools(mock_multi_client):
     """Test getting tools from MultiServerMCPClient."""
     # Setup mock return value
     mock_tools = [MagicMock(), MagicMock()]
-    mock_multi_client._mcp_client.get_tools = AsyncMock(return_value=mock_tools)  # Change to AsyncMock
+    mock_multi_client._mcpwire.get_tools = AsyncMock(return_value=mock_tools)  # Change to AsyncMock
     
     # Call the get_tools method - calling as async method
     result = await mock_multi_client.get_tools()  # Add await here
     
     # Check the result
-    mock_multi_client._mcp_client.get_tools.assert_called_once()
+    mock_multi_client._mcpwire.get_tools.assert_called_once()
     assert result == mock_tools
 
 @pytest.mark.asyncio
@@ -409,34 +409,34 @@ async def test_multi_client_get_prompt(mock_multi_client):
     """Test getting a prompt from MultiServerMCPClient."""
     # Setup mock return value
     mock_messages = [HumanMessage(content="Hello"), AIMessage(content="Hi")]
-    mock_multi_client._mcp_client.get_prompt.return_value = mock_messages
+    mock_multi_client._mcpwire.get_prompt.return_value = mock_messages
     
     # Call the get_prompt method
     result = await mock_multi_client.get_prompt("server_name", "prompt_name", {"param": "value"})
     
     # Check the result
-    mock_multi_client._mcp_client.get_prompt.assert_called_once_with("server_name", "prompt_name", {"param": "value"})
+    mock_multi_client._mcpwire.get_prompt.assert_called_once_with("server_name", "prompt_name", {"param": "value"})
     assert result == mock_messages
 
 @pytest.mark.asyncio
 async def test_multi_client_as_async_context_manager(mock_multi_client):
     """Test using MultiServerMCPClient as an async context manager."""
     # Setup mock return values
-    mock_multi_client._mcp_client.__aenter__.return_value = mock_multi_client._mcp_client
+    mock_multi_client._mcpwire.__aenter__.return_value = mock_multi_client._mcpwire
     
     # Use the client as a context manager
     async with mock_multi_client as client:
-        assert client == mock_multi_client._mcp_client
-        mock_multi_client._mcp_client.__aenter__.assert_called_once()
+        assert client == mock_multi_client._mcpwire
+        mock_multi_client._mcpwire.__aenter__.assert_called_once()
     
     # Check that __aexit__ was called
-    mock_multi_client._mcp_client.__aexit__.assert_called_once()
+    mock_multi_client._mcpwire.__aexit__.assert_called_once()
 
 # == Error Handling Tests ==
 
 @pytest.mark.asyncio
-@patch("mcp_client.client.sse_client")
-@patch("mcp_client.client.AsyncExitStack")
+@patch("mcpwire.client.sse_client")
+@patch("mcpwire.client.AsyncExitStack")
 async def test_mcp_connection_error(mock_exit_stack_class, mock_sse_client):
     """Test handling of connection errors by explicitly raising MCPConnectionError."""
     # Set up mock exit stack

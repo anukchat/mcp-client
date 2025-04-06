@@ -35,7 +35,7 @@ jobs:
     - name: Test package installation
       run: |
         pip install $(find dist -name "*.whl")[dev]
-        python -c "import mcp_client; print(f'Package version: {mcp_client.__version__}')"
+        python -c "import mcpwire; print(f'Package version: {mcpwire.__version__}')"
         
     - name: Publish to Test PyPI
       uses: pypa/gh-action-pypi-publish@release/v1

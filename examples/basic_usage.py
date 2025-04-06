@@ -18,7 +18,7 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional
 
-from mcp_client import (
+from mcpwire import (
     MCPClient,
     MultiServerMCPClient,
     StdioConnection,

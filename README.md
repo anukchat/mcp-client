@@ -1,11 +1,11 @@
 # MCP Python Client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcp-client.svg)](https://badge.fury.io/py/mcp-client) [![Python Version](https://img.shields.io/pypi/pyversions/mcp-client.svg)](https://pypi.org/project/mcp-client/) [![Tests](https://github.com/anukchat/mcp-client/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcp-client/actions/workflows/test.yml)
-[![Publish](https://github.com/anukchat/mcp-client/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcp-client/actions/workflows/publish.yml)
-[![Coverage Status](https://codecov.io/gh/anukchat/mcp-client/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcp-client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcpwire.svg)](https://badge.fury.io/py/mcpwire) [![Python Version](https://img.shields.io/pypi/pyversions/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Tests](https://github.com/anukchat/mcpwire/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/test.yml)
+[![Publish](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml)
+[![Coverage Status](https://codecov.io/gh/anukchat/mcpwire/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcpwire)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/mcp-client.svg)](https://pypi.org/project/mcp-client/)
-[![Documentation Status](https://readthedocs.org/projects/mcp-client/badge/?version=latest)](https://mcp-client.readthedocs.io/en/latest/?badge=latest)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/mcpwire.svg)](https://pypi.org/project/mcpwire/)
+[![Documentation Status](https://readthedocs.org/projects/mcpwire/badge/?version=latest)](https://mcpwire.readthedocs.io/en/latest/?badge=latest)
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
@@ -27,10 +27,10 @@ A Python client library for interacting with servers implementing the [Model Con
 
 ```bash
 # From PyPI (once published)
-pip install mcp-client
+pip install mcpwire
 
 # Development dependencies
-pip install mcp-client[dev]
+pip install mcpwire[dev]
 
 # Or directly from GitHub
 pip install git+https://github.com/anukchat/mcp-python-client.git
@@ -103,7 +103,7 @@ Example mcp.json:
 ```python
 import asyncio
 import logging
-from mcp_client import (
+from mcpwire import (
     MCPClient,
     MultiServerMCPClient,
     StdioConnection,
@@ -243,7 +243,7 @@ This project uses GitHub Actions for continuous integration:
 
 To release a new version:
 
-1. Update the version in `pyproject.toml` and `mcp_client/__init__.py`
+1. Update the version in `pyproject.toml` and `mcpwire/__init__.py`
 2. Update the CHANGELOG.md file with the changes
 3. Commit the changes and push to GitHub
 4. Create and push a new tag that matches the version:

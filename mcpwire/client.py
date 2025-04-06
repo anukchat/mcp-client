@@ -1,4 +1,4 @@
-# mcp-python-client/mcp_client/client.py
+# mcp-python-client/mcpwire/client.py
 
 """
 Core MCPClient class for interacting with an MCP server.
@@ -133,7 +133,7 @@ class MCPClient:
             self.headers["Authorization"] = f"Bearer {resolved_api_key}"
             
         # Initialize MCP client
-        self._mcp_client = None
+        self._mcpwire = None
         self._exit_stack = None
         
         logger.info(f"MCPClient initialized (Transport: {self.transport})")
@@ -312,7 +312,7 @@ class MCPClient:
                 
                 # Initialize the session
                 await session.initialize()
-                self._mcp_client = session
+                self._mcpwire = session
                 
             elif self.transport == "sse":
                 # Create SSE connection
@@ -327,7 +327,7 @@ class MCPClient:
                 
                 # Initialize the session
                 await session.initialize()
-                self._mcp_client = session
+                self._mcpwire = session
             
             elif self.transport == "http":
                 raise ValueError("HTTP transport is not supported by the official MCP library. Use 'sse' instead.")
@@ -338,23 +338,23 @@ class MCPClient:
     async def list_tools(self) -> List[BaseTool]:
         """List all available tools."""
         await self._initialize()
-        return await load_mcp_tools(self._mcp_client)
+        return await load_mcp_tools(self._mcpwire)
         
     async def get_prompt(self, prompt_name: str, arguments: Optional[Dict[str, Any]] = None) -> List[Union[HumanMessage, AIMessage]]:
         """Get a prompt from the MCP server."""
         await self._initialize()
-        return await load_mcp_prompt(self._mcp_client, prompt_name, arguments)
+        return await load_mcp_prompt(self._mcpwire, prompt_name, arguments)
         
     async def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """Call an MCP tool."""
         await self._initialize()
-        return await self._mcp_client.call_tool(tool_name, arguments)
+        return await self._mcpwire.call_tool(tool_name, arguments)
         
     async def get_server_metadata(self) -> ServerMetadata:
         """Get metadata from the MCP server."""
         await self._initialize()
         # Convert MCP server metadata to our ServerMetadata format
-        metadata = await self._mcp_client.get_server_info()
+        metadata = await self._mcpwire.get_server_info()
         # Note: This is a simplified version, full implementation would need to map
         # all fields from MCP's ServerInfo to our ServerMetadata model
         return ServerMetadata(
@@ -369,7 +369,7 @@ class MCPClient:
         if self._exit_stack:
             await self._exit_stack.aclose()
             self._exit_stack = None
-            self._mcp_client = None
+            self._mcpwire = None
             
     async def __aenter__(self):
         """Enable use of the client as an async context manager."""
@@ -414,24 +414,24 @@ class MultiServerMCPClient:
                 If None, no initial connections are established.
         """
         from langchain_mcp_adapters.client import MultiServerMCPClient as LangchainMultiServerMCPClient
-        self._mcp_client = LangchainMultiServerMCPClient(connections)
+        self._mcpwire = LangchainMultiServerMCPClient(connections)
         
     async def connect_to_server(self, server_name: str, **kwargs):
         """Connect to an MCP server."""
-        await self._mcp_client.connect_to_server(server_name, **kwargs)
+        await self._mcpwire.connect_to_server(server_name, **kwargs)
         
     def get_tools(self):
         """Get all tools from all connected servers."""
-        return self._mcp_client.get_tools()
+        return self._mcpwire.get_tools()
         
     async def get_prompt(self, server_name: str, prompt_name: str, arguments: Optional[Dict[str, Any]] = None):
         """Get a prompt from a specific server."""
-        return await self._mcp_client.get_prompt(server_name, prompt_name, arguments)
+        return await self._mcpwire.get_prompt(server_name, prompt_name, arguments)
         
     async def __aenter__(self):
         """Enter async context."""
-        return await self._mcp_client.__aenter__()
+        return await self._mcpwire.__aenter__()
         
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Exit async context."""
-        await self._mcp_client.__aexit__(exc_type, exc_val, exc_tb)
+        await self._mcpwire.__aexit__(exc_type, exc_val, exc_tb)
