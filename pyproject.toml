@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "mcp-client"
 version = "0.4.0" # Reflects migration to official MCP library
 authors = [
-  { name="Your Name", email="your.email@example.com" }, # Replace with your details
+  { name="Anukool Chaturvedi", email="chaturvedianukool@gmail.com" }, # Replace with your details
 ]
 description = "A Python client for the Model Context Protocol (MCP), using the official MCP library and langchain-mcp-adapters."
 readme = "README.md" # Link to your README for the long description on PyPI
@@ -40,9 +40,9 @@ dependencies = [
 
 # Optional URLs for PyPI display
 [project.urls]
-Homepage = "https://github.com/your-username/mcp-python-client" # Replace
-Repository = "https://github.com/your-username/mcp-python-client" # Replace
-Issues = "https://github.com/your-username/mcp-python-client/issues" # Replace
+Homepage = "https://github.com/anukchat/mcpwire" # Replace
+Repository = "https://github.com/anukchat/mcpwire" # Replace
+Issues = "https://github.com/anukchat/mcpwire/issues" # Replace
 
 # --- Optional Dependencies ---
 # Defines sets of dependencies that are not required for the core package
@@ -71,7 +71,7 @@ dev = [
 
 # Tells setuptools (the build backend) where to find your package source code
 [tool.setuptools]
-packages = ["mcp_client"]
+packages = ["mcpwire"]
 
 # Configure pytest
 [tool.pytest.ini_options]
