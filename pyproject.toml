@@ -54,8 +54,12 @@ Issues = "https://github.com/your-username/mcp-python-client/issues" # Replace
 # that might use extra integrations like LangChain adapters.
 dev = [
     "pytest>=7.0",          # For running tests
+    "pytest-asyncio>=0.23.0", # For testing async code
     "requests-mock>=1.9",   # For mocking HTTP requests in tests
     "pytest-cov>=4.0",      # For test coverage reports (optional)
+    "mock>=5.0.0",          # For general mocking
+    "pytest-mock>=3.10.0",  # For pytest fixtures for mocking
+    "aioresponses>=0.7.4",  # For mocking async HTTP requests
     # LangChain related dependencies
     "langchain>=0.1.0",     # LangChain framework itself
     "langchain_openai>=0.1.0",
@@ -70,4 +74,8 @@ dev = [
 # Tells setuptools (the build backend) where to find your package source code
 [tool.setuptools]
 packages = ["mcp_client"]
+
+# Configure pytest
+[tool.pytest.ini_options]
+asyncio_mode = "auto"  # Enable asyncio support in pytest automatically
 
