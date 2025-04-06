@@ -1,0 +1,73 @@
+# mcp-python-client/pyproject.toml
+
+# Defines the build system requirements and backend.
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# Defines project metadata and dependencies according to PEP 621.
+[project]
+name = "mcp-client"
+version = "0.4.0" # Reflects migration to official MCP library
+authors = [
+  { name="Your Name", email="your.email@example.com" }, # Replace with your details
+]
+description = "A Python client for the Model Context Protocol (MCP), using the official MCP library and langchain-mcp-adapters."
+readme = "README.md" # Link to your README for the long description on PyPI
+requires-python = ">=3.8" # Minimum Python version needed
+license = { file="LICENSE" } # Link to your LICENSE file
+classifiers = [
+    # Standard classifiers help users find your package
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License", # Adjust if needed
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Communications",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+# Core runtime dependencies needed for the client to function.
+# pip will automatically install these when your package is installed.
+dependencies = [
+    "mcp>=1.6.0",                  # Official MCP library
+    "langchain-mcp-adapters>=0.0.7", # LangChain MCP adapters
+    "langchain-core>=0.3.36",      # Core LangChain abstractions
+    "pydantic>=2.0",               # For data validation and modeling
+]
+
+# Optional URLs for PyPI display
+[project.urls]
+Homepage = "https://github.com/your-username/mcp-python-client" # Replace
+Repository = "https://github.com/your-username/mcp-python-client" # Replace
+Issues = "https://github.com/your-username/mcp-python-client/issues" # Replace
+
+# --- Optional Dependencies ---
+# Defines sets of dependencies that are not required for the core package
+# functionality but needed for specific features or development.
+[project.optional-dependencies]
+# 'dev' group includes tools for testing, linting, and running examples
+# that might use extra integrations like LangChain adapters.
+dev = [
+    "pytest>=7.0",          # For running tests
+    "requests-mock>=1.9",   # For mocking HTTP requests in tests
+    "pytest-cov>=4.0",      # For test coverage reports (optional)
+    # LangChain related dependencies
+    "langchain>=0.1.0",     # LangChain framework itself
+    "langchain_openai>=0.1.0",
+    "langgraph>=0.1.0"
+    # Add linters like flake8, black, mypy if desired for development workflow
+    # "flake8",
+    # "black",
+    # "mypy"
+]
+# You could define other groups, e.g., 'docs' for Sphinx dependencies
+
+# Tells setuptools (the build backend) where to find your package source code
+[tool.setuptools]
+packages = ["mcp_client"]
+
