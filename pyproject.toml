@@ -14,13 +14,11 @@ authors = [
 ]
 description = "A Python client for the Model Context Protocol (MCP), using the official MCP library and langchain-mcp-adapters."
 readme = "README.md" # Link to your README for the long description on PyPI
-requires-python = ">=3.8" # Minimum Python version needed
+requires-python = ">=3.10" # Minimum Python version needed
 license = { file="LICENSE" } # Link to your LICENSE file
 classifiers = [
     # Standard classifiers help users find your package
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
