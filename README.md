@@ -9,11 +9,11 @@
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
-**Version:** 0.4.0
+**Version:** 0.4.1
 
 ## Features
 
-* **Official MCP Implementation:** Starting with version 0.4.0, this library uses the official MCP library and langchain-mcp-adapters.
+* **Official MCP Implementation:** Starting with version 0.4.1, this library uses the official MCP library and langchain-mcp-adapters.
 * **Backward Compatibility:** Maintains the same API structure as before, but now uses async methods.
 * **Send Prompts:** Easily send conversation history to get responses from MCP servers.
 * **Tool Support:** Access tools provided by MCP servers and convert them to LangChain tools.
@@ -194,9 +194,9 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Migration from v0.3.0 to v0.4.0
+## Migration from v0.3.0 to v0.4.1
 
-Version 0.4.0 introduces significant changes by migrating to the official MCP library and langchain-mcp-adapters. Key differences:
+Version 0.4.1 introduces significant changes by migrating to the official MCP library and langchain-mcp-adapters. Key differences:
 
 1. **Async API**: Methods are now async and require `await` and an async context manager.
 2. **Transport Change**: The "http" transport is no longer supported; use "sse" instead.
@@ -237,7 +237,7 @@ This project uses GitHub Actions for continuous integration:
 
 - **Tests**: Automatically run on each push and pull request to main/master branches
 - **Builds**: Package is built and validated to ensure it will install correctly
-- **Publishing**: When a new version tag is pushed (e.g., v0.4.0), the package is automatically published to PyPI
+- **Publishing**: When a new version tag is pushed (e.g., v0.4.1), the package is automatically published to PyPI
 
 ### Creating a Release
 
@@ -249,8 +249,8 @@ To release a new version:
 4. Create and push a new tag that matches the version:
 
 ```bash
-git tag -a v0.4.0 -m "Release v0.4.0"
-git push origin v0.4.0
+git tag -a v0.4.1 -m "Release v0.4.1"
+git push origin v0.4.1
 ```
 
 The GitHub Actions workflow will automatically build and publish the package to PyPI.

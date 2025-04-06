@@ -21,9 +21,9 @@ This workflow builds and publishes the package to PyPI when a new tag is pushed.
    - Create and push a new tag that matches the version:
    
    ```bash
-   # Example for releasing v0.4.0
-   git tag -a v0.4.0 -m "Release v0.4.0"
-   git push origin v0.4.0
+   # Example for releasing v0.4.1
+   git tag -a v0.4.1 -m "Release v0.4.1"
+   git push origin v0.4.1
    ```
 
 3. **Monitor the workflow**:

@@ -12,7 +12,7 @@ pip install mcpwire
 
 ### Async Nature of the API
 
-Starting with version 0.4.0, the client API is asynchronous, requiring the use of `async/await` syntax:
+Starting with version 0.4.1, the client API is asynchronous, requiring the use of `async/await` syntax:
 
 ```python
 import asyncio
@@ -214,9 +214,9 @@ except MCPError as e:
     print(f"General MCP error: {e}")
 ```
 
-## Migration from v0.3.0 to v0.4.0
+## Migration from v0.3.0 to v0.4.1
 
-The main changes when migrating from v0.3.0 to v0.4.0:
+The main changes when migrating from v0.3.0 to v0.4.1:
 
 1. **Async API**: All methods are now async and require `await`.
 2. **Context Manager**: Use `async with` instead of `with`.

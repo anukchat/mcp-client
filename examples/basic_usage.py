@@ -2,7 +2,7 @@
 # mcpwire/examples/basic_usage.py
 
 """
-Basic Usage Example for MCP Client (v0.4.0+ with official MCP library)
+Basic Usage Example for MCP Client (v0.4.1+ with official MCP library)
 
 This example demonstrates:
 1. Creating a client directly or loading from configuration file
