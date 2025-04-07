@@ -1,12 +1,13 @@
 # MCP Python Client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://badge.fury.io/py/mcpwire.svg)](https://badge.fury.io/py/mcpwire) [![Python Version](https://img.shields.io/pypi/pyversions/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Tests](https://github.com/anukchat/mcpwire/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://img.shields.io/pypi/v/mcpwire.svg)](https://pypi.org/project/mcpwire/)[![Python Version](https://img.shields.io/pypi/pyversions/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Tests](https://github.com/anukchat/mcpwire/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/test.yml)
 [![Publish](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml)
 [![Coverage Status](https://codecov.io/gh/anukchat/mcpwire/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcpwire)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![GitHub stars](https://img.shields.io/github/stars/anukchat/mcpwire)](https://github.com/anukchat/mcpwire/stargazers)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/mcpwire.svg)](https://pypi.org/project/mcpwire/)
 [![Documentation Status](https://readthedocs.org/projects/mcpwire/badge/?version=latest)](https://mcpwire.readthedocs.io/en/latest/?badge=latest)
+[![GitHub stars](https://img.shields.io/github/stars/anukchat/mcpwire)](https://github.com/anukchat/mcpwire/stargazers)
+
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
