@@ -396,7 +396,7 @@ class MCPClient:
                         name=template.name,
                         description=template.description,
                         mime_type=template.mime_type
-                    ) for template in response.templates or []
+                    ) for template in getattr(response, 'templates', []) or []
                 ]
             )
         except Exception as e:
@@ -591,7 +591,7 @@ class MultiServerMCPClient:
                         name=template.name,
                         description=template.description,
                         mime_type=template.mime_type
-                    ) for template in response.templates or []
+                    ) for template in getattr(response, 'templates', []) or []
                 ]
             )
         except Exception as e:

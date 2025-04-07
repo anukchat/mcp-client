@@ -7,6 +7,7 @@ Math Server Example for MCP Client
 This example demonstrates:
 1. Connecting to the math_server.py MCP server
 2. Using the client to interact with the math server tools
+3. Working with resources exposed by the math server
 """
 
 import asyncio
@@ -57,6 +58,63 @@ async def use_math_server():
                     add_result = await mcp.call_tool("add", {"a": i, "b": j})
                     multiply_result = await mcp.call_tool("multiply", {"a": i, "b": j})
                     logger.info(f"{i} + {j} = {add_result.content[0].text}, {i} × {j} = {multiply_result.content[0].text}")
+            
+            # Work with resources
+            logger.info("\n=== Math Server Resources ===\n")
+            
+            try:
+                # List available resources
+                resources = await mcp.list_resources()
+                logger.info(f"Math server provides {len(resources.resources)} resources and {len(resources.templates or [])} templates")
+                
+                # Display resources
+                for resource in resources.resources:
+                    logger.info(f"Resource: {resource.name} (URI: {resource.uri})")
+                    
+                    # Read the resource
+                    try:
+                        content = await mcp.read_resource(resource.uri)
+                        for item in content.contents:
+                            if item.text:
+                                logger.info(f"  Content: {item.text[:50]}...")
+                            elif item.blob:
+                                logger.info(f"  Binary content: {len(item.blob)} bytes")
+                        
+                        # Subscribe to the resource
+                        await mcp.subscribe_to_resource(resource.uri)
+                        logger.info(f"  Subscribed to {resource.name}")
+                        
+                        # Unsubscribe when done
+                        await mcp.unsubscribe_from_resource(resource.uri)
+                        logger.info(f"  Unsubscribed from {resource.name}")
+                    except Exception as e:
+                        logger.error(f"  Error reading resource: {e}")
+                        
+                # Display resource templates if available
+                if resources.templates and len(resources.templates) > 0:
+                    logger.info("Available templates:")
+                    for template in resources.templates:
+                        logger.info(f"Template: {template.name}")
+                        logger.info(f"  URI Template: {template.uri_template}")
+                        logger.info(f"  Description: {template.description or 'No description'}")
+                        logger.info(f"  MIME Type: {template.mime_type or 'Not specified'}")
+                        
+                        # Try using the template if it's a known format
+                        if "formula" in template.uri_template:
+                            try:
+                                formula_uri = template.uri_template.replace("{formula}", "1+1")
+                                logger.info(f"  Using template with '1+1': {formula_uri}")
+                                formula_content = await mcp.read_resource(formula_uri)
+                                for item in formula_content.contents:
+                                    if item.text:
+                                        logger.info(f"    Result: {item.text}")
+                            except Exception as e:
+                                logger.error(f"  Error using template: {e}")
+                else:
+                    logger.info("No resource templates available from this server")
+                
+            except Exception as e:
+                logger.error(f"Error working with resources: {e}")
     
     except MCPConnectionError as e:
         logger.error(f"Connection error: {e}")

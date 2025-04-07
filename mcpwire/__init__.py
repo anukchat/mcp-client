@@ -11,7 +11,7 @@ langchain-mcp-adapters.
 """
 
 # Define the package version. Follow semantic versioning (major.minor.patch).
-__version__ = "0.4.1" # Updated to reflect migration to official MCP library
+__version__ = "0.5.0" # Updated to include resource support
 
 # Import core classes and exceptions for easier access
 from .client import MCPClient, MultiServerMCPClient, StdioConnection, SSEConnection

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2023-05-15
+
+### Added
+- Complete support for MCP Resources API
+- Added `list_resources()` method to get available resources and templates
+- Added `read_resource(uri)` method to read resource content
+- Added `subscribe_to_resource(uri)` and `unsubscribe_from_resource(uri)` methods
+- Added support for resource templates
+- Added resource configuration in mcp.json
+- Added comprehensive examples for working with resources
+- Added troubleshooting guide for common resource-related issues
+
+### Changed
+- Updated models to align with the MCP Resources specification
+- Enhanced MultiServerMCPClient to support resources
+- Improved error handling for resource operations
+- Updated tests to cover resource functionality
+- Updated documentation with resource usage examples
+
 ## [0.4.1] - 2023-04-06
 
 ### Added

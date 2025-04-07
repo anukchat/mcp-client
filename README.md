@@ -9,16 +9,16 @@
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
-**Version:** 0.4.1
+**Version:** 0.5.0
 
 ## Features
 
-* **Official MCP Implementation:** Starting with version 0.4.1, this library uses the official MCP library and langchain-mcp-adapters.
-* **Backward Compatibility:** Maintains the same API structure as before, but now uses async methods.
+* **Official MCP Implementation:** This library uses the official MCP library and langchain-mcp-adapters.
+* **Resource Support:** Complete support for MCP Resources API for exposing and accessing data.
 * **Send Prompts:** Easily send conversation history to get responses from MCP servers.
 * **Tool Support:** Access tools provided by MCP servers and convert them to LangChain tools.
-* **MultiServerMCPClient:** Connect to multiple MCP servers and access their tools.
-* **Configuration File:** Load server connection details (`base_url`, `api_key`, `timeout`) from an `mcp.json` file.
+* **MultiServerMCPClient:** Connect to multiple MCP servers and access their tools and resources.
+* **Configuration File:** Load server connection details and resource configuration from an `mcp.json` file.
 * **Robust Error Handling:** Differentiates between connection errors, timeouts, API errors, and data validation errors.
 * **Authentication:** Supports API Key authentication via the `Authorization: Bearer` header.
 * **Context Manager:** Supports use as an async context manager.
@@ -272,14 +272,17 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Migration from v0.3.0 to v0.4.1
+## Migration from v0.4.1 to v0.5.0
 
-Version 0.4.1 introduces significant changes by migrating to the official MCP library and langchain-mcp-adapters. Key differences:
+Version 0.5.0 adds comprehensive support for MCP Resources:
 
-1. **Async API**: Methods are now async and require `await` and an async context manager.
-2. **Transport Change**: The "http" transport is no longer supported; use "sse" instead.
-3. **MultiServerMCPClient**: A new class for connecting to multiple MCP servers.
-4. **LangChain Integration**: Tools are now LangChain tools.
+1. **Resource API**: New methods for working with resources (`list_resources()`, `read_resource()`, etc.)
+2. **Configuration**: Added resource configuration options in mcp.json
+3. **Resource Templates**: Support for URI templates to access dynamic resources
+4. **Resource Subscriptions**: Subscribe to resource updates with `subscribe_to_resource()`
+5. **MultiServer Resources**: Access resources from multiple servers with MultiServerMCPClient
+
+
 
 ## Development
 
@@ -327,8 +330,8 @@ To release a new version:
 4. Create and push a new tag that matches the version:
 
 ```bash
-git tag -a v0.4.1 -m "Release v0.4.1"
-git push origin v0.4.1
+git tag -a v0.5.0 -m "Release v0.5.0"
+git push origin v0.5.0
 ```
 
 The GitHub Actions workflow will automatically build and publish the package to PyPI.

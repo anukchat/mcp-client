@@ -35,7 +35,7 @@ This workflow builds and publishes the package to PyPI when a new tag is pushed.
 
 The workflow:
 1. Checks out the repo
-2. Sets up Python 3.8
+2. Sets up Python 3.10
 3. Installs build dependencies
 4. Builds the package
 5. Validates the package with twine

@@ -2,13 +2,16 @@
 # mcpwire/examples/basic_usage.py
 
 """
-Basic Usage Example for MCP Client (v0.4.1+ with official MCP library)
+Basic Usage Example for MCP Client (v0.5.0+ with resource support)
 
 This example demonstrates:
 1. Creating a client directly or loading from configuration file
 2. Using the client to interact with an MCP server
 3. Using the MultiServerMCPClient to interact with multiple MCP servers
-4. Basic error handling
+4. Working with MCP resources (listing, reading, subscribing)
+5. Basic error handling
+
+** Make sure your server under server/math_server is running before running this example
 
 NOTE: This example uses async/await as the official MCP library is async-only.
 """
@@ -16,18 +19,16 @@ NOTE: This example uses async/await as the official MCP library is async-only.
 import os
 import asyncio
 import logging
+import base64
 from typing import Dict, Any, Optional
 
 from mcpwire import (
     MCPClient,
     MultiServerMCPClient,
-    StdioConnection,
-    SSEConnection,
     MCPError,
     MCPAPIError,
     MCPConnectionError,
-    MCPTimeoutError,
-    MCPDataError
+    MCPTimeoutError
 )
 
 # Set up logging - helps trace what's happening
@@ -76,6 +77,81 @@ async def example_direct_initialization():
     except MCPConnectionError as e:
         logger.error(f"Connection error: {e}")
         logger.info("Make sure an MCP server is running at http://localhost:8000")
+    except MCPError as e:
+        logger.error(f"MCP Client error: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+
+async def example_resource_operations():
+    """Example: Working with MCP resources."""
+    logger.info("\n=== Example: Resource Operations ===\n")
+    try:
+        client = MCPClient(
+            base_url="http://localhost:8000/sse",
+            transport="sse",
+            timeout=30
+        )
+        
+        async with client as mcp:
+            # List available resources and templates
+            resources_result = await mcp.list_resources()
+            logger.info(f"Found {len(resources_result.resources)} resources and {len(resources_result.templates or [])} templates")
+            
+            # Display available resources
+            for resource in resources_result.resources:
+                logger.info(f"Resource: {resource.name} (URI: {resource.uri})")
+            
+            # Display available templates
+            if resources_result.templates and len(resources_result.templates) > 0:
+                logger.info("Available templates:")
+                for template in resources_result.templates:
+                    logger.info(f"Template: {template.name} (URI Template: {template.uri_template})")
+            else:
+                logger.info("No resource templates available from this server")
+            
+            # Read a resource (if any resources available)
+            if resources_result.resources:
+                # Get the first resource
+                resource_uri = resources_result.resources[0].uri
+                logger.info(f"Reading resource: {resource_uri}")
+                
+                try:
+                    content = await mcp.read_resource(resource_uri)
+                    for item in content.contents:
+                        if item.text:  # Text resource
+                            logger.info(f"Text content: {item.text[:100]}...")
+                        elif item.blob:  # Binary resource
+                            binary_size = len(base64.b64decode(item.blob))
+                            logger.info(f"Binary content: {binary_size} bytes")
+                    
+                    # Subscribe to resource updates
+                    await mcp.subscribe_to_resource(resource_uri)
+                    logger.info(f"Subscribed to resource: {resource_uri}")
+                    
+                    # Later, unsubscribe
+                    await mcp.unsubscribe_from_resource(resource_uri)
+                    logger.info(f"Unsubscribed from resource: {resource_uri}")
+                    
+                except Exception as e:
+                    logger.error(f"Error working with resource {resource_uri}: {e}")
+            
+            # Use a resource template if available
+            if resources_result.templates:
+                template = resources_result.templates[0]
+                logger.info(f"Using template: {template.uri_template}")
+                
+                # For example, if template is "file:///workspace/{path}"
+                if "file:///workspace/{path}" in template.uri_template:
+                    try:
+                        test_uri = "file:///workspace/test.txt"
+                        logger.info(f"Reading from template-based URI: {test_uri}")
+                        template_content = await mcp.read_resource(test_uri)
+                        logger.info(f"Successfully read from template URI")
+                    except Exception as e:
+                        logger.error(f"Error using template URI: {e}")
+                
+    except MCPConnectionError as e:
+        logger.error(f"Connection error: {e}")
     except MCPError as e:
         logger.error(f"MCP Client error: {e}")
     except Exception as e:
@@ -155,6 +231,30 @@ async def example_multi_server_client():
                     logger.info(f"Message: {msg.content}")
             except Exception as e:
                 logger.error(f"Error getting prompt: {e}")
+                
+            # Working with resources from multiple servers
+            try:
+                # List resources from the math server
+                math_resources = await multi_client.list_resources("math")
+                logger.info(f"Math server has {len(math_resources.resources)} resources")
+                
+                # Read a resource if available
+                if math_resources.resources:
+                    math_resource_uri = math_resources.resources[0].uri
+                    logger.info(f"Reading math resource: {math_resource_uri}")
+                    
+                    content = await multi_client.read_resource("math", math_resource_uri)
+                    logger.info(f"Successfully read resource from math server")
+                    
+                    # Subscribe to resource updates
+                    await multi_client.subscribe_to_resource("math", math_resource_uri)
+                    logger.info(f"Subscribed to resource on math server")
+                    
+                    # Unsubscribe
+                    await multi_client.unsubscribe_from_resource("math", math_resource_uri)
+                    logger.info(f"Unsubscribed from resource on math server")
+            except Exception as e:
+                logger.error(f"Error working with resources: {e}")
             
     except Exception as e:
         logger.error(f"MultiServerMCPClient error: {e}", exc_info=True)
@@ -190,11 +290,29 @@ async def example_error_handling():
         MCPClient.from_config(config_path="/non/existent/path/to/mcp.json")
     except FileNotFoundError as e:
         logger.info(f"✓ Successfully caught config file not found error: {e}")
+        
+    # Try reading a non-existent resource
+    try:
+        client = MCPClient(
+            base_url="http://localhost:8000/sse",
+            transport="sse",
+            timeout=5
+        )
+        
+        async with client as mcp:
+            await mcp.read_resource("non:///existent/resource")
+    except MCPAPIError as e:
+        logger.info(f"✓ Successfully caught resource error: {e}")
+    except MCPError as e:
+        logger.info(f"✓ Successfully caught general MCP error: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
 
 async def run_all_examples():
     """Run all examples in sequence."""
     try:
         await example_direct_initialization()
+        await example_resource_operations()
         # await example_config_file_initialization()  
         # await example_multi_server_client()
         # await example_error_handling()

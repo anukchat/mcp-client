@@ -42,7 +42,7 @@ class ResourceTemplate(BaseModel):
 class Resource(BaseModel):
     """Represents a resource managed by the MCP server."""
     uri: str = Field(..., description="Unique identifier for the resource.")
-    name: str = Field(..., description="Human-readable name for the resource.")
+    name: Optional[str] = Field(None, description="Human-readable name for the resource.")
     description: Optional[str] = Field(None, description="Description of this resource.")
     mime_type: Optional[str] = Field(None, alias="mimeType", description="MIME type of the resource.")
     
@@ -133,7 +133,7 @@ class ListToolsResponse(BaseModel):
 class ListResourcesResponse(BaseModel):
     """Response body for the resources/list endpoint."""
     resources: List[Resource] = Field(default_factory=list, description="List of available concrete resources.")
-    templates: List[ResourceTemplate] = Field(default_factory=list, description="List of available resource templates.")
+    templates: Optional[List[ResourceTemplate]] = Field(default_factory=list, description="List of available resource templates.")
 
 class ReadResourceResponse(BaseModel):
     """Response body for the resources/read endpoint."""

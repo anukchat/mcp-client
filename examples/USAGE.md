@@ -66,14 +66,34 @@ Example configuration file:
       "transport": "sse",
       "api_key": null,
       "timeout": 60,
-      "description": "Local development server"
+      "description": "Local development server",
+      "resources": {
+        "enabled": true,
+        "auto_subscribe": ["file:///workspace/shared/*"],
+        "default_templates": [
+          {
+            "uri_template": "file:///workspace/{path}",
+            "name": "Workspace File",
+            "description": "Access files in the workspace directory"
+          },
+          {
+            "uri_template": "db://customers/{customer_id}",
+            "name": "Customer Record",
+            "description": "Access customer data from the database",
+            "mime_type": "application/json"
+          }
+        ]
+      }
     },
     "stdio_server": {
       "transport": "stdio",
       "command": "python",
       "args": ["-m", "mcp.server.cli"],
       "timeout": 60,
-      "description": "Local stdio server"
+      "description": "Local stdio server",
+      "resources": {
+        "enabled": false
+      }
     }
   }
 }
@@ -111,9 +131,71 @@ result = await mcp.call_tool("search", {"query": "MCP protocol"})
 print(f"Tool result: {result}")
 ```
 
+### Working with Resources
+
+Version 0.5.0 adds comprehensive support for MCP resources. Here's how to use them:
+
+#### Listing Resources and Templates
+
+```python
+# List available resources and templates
+resources_result = await mcp.list_resources()
+print(f"Found {len(resources_result.resources)} resources")
+print(f"Found {len(resources_result.templates)} templates")
+
+# Display available resources
+for resource in resources_result.resources:
+    print(f"Resource: {resource.name} (URI: {resource.uri})")
+    
+# Display available templates
+for template in resources_result.templates:
+    print(f"Template: {template.name} (URI Template: {template.uri_template})")
+```
+
+#### Reading Resource Content
+
+```python
+# Read a specific resource
+content = await mcp.read_resource("file:///workspace/document.txt")
+
+for item in content.contents:
+    if item.text:  # Text resource
+        print(f"Text content: {item.text}")
+    elif item.blob:  # Binary resource (base64 encoded)
+        # For binary resources
+        import base64
+        binary_data = base64.b64decode(item.blob)
+        print(f"Binary content: {len(binary_data)} bytes")
+```
+
+#### Subscribing to Resource Updates
+
+```python
+# Subscribe to a resource to receive updates
+resource_uri = "file:///workspace/document.txt"
+await mcp.subscribe_to_resource(resource_uri)
+
+# ... Use the resource ...
+
+# Unsubscribe when no longer needed
+await mcp.unsubscribe_from_resource(resource_uri)
+```
+
+#### Using Resource Templates
+
+```python
+# For a template like "file:///workspace/{path}"
+file_uri = "file:///workspace/documents/report.pdf"
+file_content = await mcp.read_resource(file_uri)
+
+# For a template like "db://customers/{customer_id}"
+customer_uri = "db://customers/12345"
+customer_data = await mcp.read_resource(customer_uri)
+```
+
 ## MultiServerMCPClient
 
-The library now includes a `MultiServerMCPClient` that allows connecting to multiple MCP servers:
+The library includes a `MultiServerMCPClient` that allows connecting to multiple MCP servers:
 
 ```python
 from mcpwire import MultiServerMCPClient
@@ -148,6 +230,20 @@ async with MultiServerMCPClient(connections) as multi_client:
         prompt_name="calculate", 
         arguments={"expression": "2+2"}
     )
+    
+    # Working with resources from multiple servers
+    math_resources = await multi_client.list_resources("math")
+    print(f"Math server has {len(math_resources.resources)} resources")
+    
+    # Read a resource from a specific server
+    if math_resources.resources:
+        math_resource_uri = math_resources.resources[0].uri
+        math_content = await multi_client.read_resource("math", math_resource_uri)
+        print(f"Read math resource: {math_resource_uri}")
+        
+        # Subscribe and unsubscribe
+        await multi_client.subscribe_to_resource("math", math_resource_uri)
+        await multi_client.unsubscribe_from_resource("math", math_resource_uri)
 ```
 
 ## Integration with LangChain
@@ -213,6 +309,16 @@ except MCPDataError as e:
 except MCPError as e:
     print(f"General MCP error: {e}")
 ```
+
+## Migration from v0.4.1 to v0.5.0
+
+Version 0.5.0 adds comprehensive support for MCP Resources:
+
+1. **Resource API**: New methods for working with resources (`list_resources()`, `read_resource()`, etc.)
+2. **Configuration**: Added resource configuration options in mcp.json
+3. **Resource Templates**: Support for URI templates to access dynamic resources
+4. **Resource Subscriptions**: Subscribe to resource updates with `subscribe_to_resource()`
+5. **MultiServer Resources**: Access resources from multiple servers with MultiServerMCPClient
 
 ## Migration from v0.3.0 to v0.4.1
 
