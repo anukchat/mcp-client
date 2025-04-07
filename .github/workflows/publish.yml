@@ -27,7 +27,7 @@ jobs:
     - name: Clean previous builds
       run: |
         rm -rf dist
-        
+
     - name: Build package
       run: |
         python -m build
@@ -50,7 +50,6 @@ jobs:
         skip-existing: true
         
     - name: Publish to PyPI
-      if: startsWith(github.ref, 'refs/tags/')
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
