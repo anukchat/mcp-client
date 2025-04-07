@@ -10,7 +10,7 @@
 
 A Python client library for interacting with servers implementing the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This library simplifies communication with AI models and agents that expose an MCP interface.
 
-**Version:** 0.5.0
+**Version:** 0.5.1
 
 ## Features
 
