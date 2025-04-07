@@ -28,7 +28,7 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from .exceptions import (
     MCPConnectionError, MCPAPIError, MCPTimeoutError, MCPDataError, MCPError
 )
-from .models import ServerMetadata
+from .models import ServerMetadata, ListResourcesResponse, Resource, ResourceTemplate, ReadResourceResponse, ResourceContent
 
 logger = logging.getLogger(__name__)
 
@@ -364,6 +364,120 @@ class MCPClient:
             description=metadata.description
         )
         
+    async def list_resources(self) -> ListResourcesResponse:
+        """
+        List all available resources and resource templates from the MCP server.
+        
+        Returns:
+            ListResourcesResponse: Object containing lists of resources and templates.
+            
+        Raises:
+            MCPConnectionError: If connection to the server fails.
+            MCPAPIError: If the server returns an error response.
+            MCPTimeoutError: If the request times out.
+        """
+        await self._initialize()
+        try:
+            response = await self._mcpwire.list_resources()
+            
+            # Convert to our response format
+            return ListResourcesResponse(
+                resources=[
+                    Resource(
+                        uri=resource.uri,
+                        name=resource.name,
+                        description=resource.description,
+                        mime_type=resource.mime_type
+                    ) for resource in response.resources or []
+                ],
+                templates=[
+                    ResourceTemplate(
+                        uri_template=template.uri_template,
+                        name=template.name,
+                        description=template.description,
+                        mime_type=template.mime_type
+                    ) for template in response.templates or []
+                ]
+            )
+        except Exception as e:
+            logger.error(f"Error listing resources: {e}")
+            raise MCPAPIError(f"Failed to list resources: {e}") from e
+    
+    async def read_resource(self, uri: str) -> ReadResourceResponse:
+        """
+        Read the content of a resource by its URI.
+        
+        Args:
+            uri: The URI of the resource to read.
+            
+        Returns:
+            ReadResourceResponse: Object containing the resource contents.
+            
+        Raises:
+            MCPConnectionError: If connection to the server fails.
+            MCPAPIError: If the server returns an error response.
+            MCPTimeoutError: If the request times out.
+        """
+        await self._initialize()
+        try:
+            response = await self._mcpwire.read_resource(uri)
+            
+            # Convert to our response format
+            return ReadResourceResponse(
+                contents=[
+                    ResourceContent(
+                        uri=content.uri,
+                        mime_type=content.mime_type,
+                        text=content.text,
+                        blob=content.blob
+                    ) for content in response.contents
+                ]
+            )
+        except Exception as e:
+            logger.error(f"Error reading resource {uri}: {e}")
+            raise MCPAPIError(f"Failed to read resource {uri}: {e}") from e
+    
+    async def subscribe_to_resource(self, uri: str) -> None:
+        """
+        Subscribe to updates for a specific resource.
+        The server will send notifications when the resource changes.
+        
+        Args:
+            uri: The URI of the resource to subscribe to.
+            
+        Raises:
+            MCPConnectionError: If connection to the server fails.
+            MCPAPIError: If the server returns an error response.
+            MCPTimeoutError: If the request times out.
+        """
+        await self._initialize()
+        try:
+            await self._mcpwire.subscribe_to_resource(uri)
+            logger.debug(f"Subscribed to resource: {uri}")
+        except Exception as e:
+            logger.error(f"Error subscribing to resource {uri}: {e}")
+            raise MCPAPIError(f"Failed to subscribe to resource {uri}: {e}") from e
+    
+    async def unsubscribe_from_resource(self, uri: str) -> None:
+        """
+        Unsubscribe from updates for a specific resource.
+        
+        Args:
+            uri: The URI of the resource to unsubscribe from.
+            
+        Raises:
+            MCPConnectionError: If connection to the server fails.
+            MCPAPIError: If the server returns an error response.
+            MCPTimeoutError: If the request times out.
+        """
+        await self._initialize()
+        try:
+            await self._mcpwire.unsubscribe_from_resource(uri)
+            logger.debug(f"Unsubscribed from resource: {uri}")
+        except Exception as e:
+            logger.error(f"Error unsubscribing from resource {uri}: {e}")
+            raise MCPAPIError(f"Failed to unsubscribe from resource {uri}: {e}") from e
+        
     async def close(self):
         """Close the MCP client."""
         if self._exit_stack:
@@ -427,6 +541,145 @@ class MultiServerMCPClient:
     async def get_prompt(self, server_name: str, prompt_name: str, arguments: Optional[Dict[str, Any]] = None):
         """Get a prompt from a specific server."""
         return await self._mcpwire.get_prompt(server_name, prompt_name, arguments)
+    
+    def get_server(self, server_name: str):
+        """
+        Get a server by name.
+        
+        Args:
+            server_name: The name of the server to get.
+            
+        Returns:
+            The server session if found, None otherwise.
+        """
+        return self._mcpwire.get_server(server_name)
+    
+    async def list_resources(self, server_name: str) -> ListResourcesResponse:
+        """
+        List resources from a specific server.
+        
+        Args:
+            server_name: The name of the server to get resources from.
+            
+        Returns:
+            ListResourcesResponse: Object containing lists of resources and templates.
+            
+        Raises:
+            ValueError: If the server is not found.
+            MCPAPIError: If the server returns an error.
+        """
+        server = self.get_server(server_name)
+        if not server:
+            raise ValueError(f"Server '{server_name}' not found.")
+        
+        try:
+            response = await server.list_resources()
+            
+            # Convert to our response format
+            return ListResourcesResponse(
+                resources=[
+                    Resource(
+                        uri=resource.uri,
+                        name=resource.name,
+                        description=resource.description,
+                        mime_type=resource.mime_type
+                    ) for resource in response.resources or []
+                ],
+                templates=[
+                    ResourceTemplate(
+                        uri_template=template.uri_template,
+                        name=template.name,
+                        description=template.description,
+                        mime_type=template.mime_type
+                    ) for template in response.templates or []
+                ]
+            )
+        except Exception as e:
+            logger.error(f"Error listing resources from server {server_name}: {e}")
+            raise MCPAPIError(f"Failed to list resources from server {server_name}: {e}") from e
+    
+    async def read_resource(self, server_name: str, uri: str) -> ReadResourceResponse:
+        """
+        Read a resource from a specific server.
+        
+        Args:
+            server_name: The name of the server to read the resource from.
+            uri: The URI of the resource to read.
+            
+        Returns:
+            ReadResourceResponse: Object containing the resource contents.
+            
+        Raises:
+            ValueError: If the server is not found.
+            MCPAPIError: If the server returns an error.
+        """
+        server = self.get_server(server_name)
+        if not server:
+            raise ValueError(f"Server '{server_name}' not found.")
+        
+        try:
+            response = await server.read_resource(uri)
+            
+            # Convert to our response format
+            return ReadResourceResponse(
+                contents=[
+                    ResourceContent(
+                        uri=content.uri,
+                        mime_type=content.mime_type,
+                        text=content.text,
+                        blob=content.blob
+                    ) for content in response.contents
+                ]
+            )
+        except Exception as e:
+            logger.error(f"Error reading resource {uri} from server {server_name}: {e}")
+            raise MCPAPIError(f"Failed to read resource {uri} from server {server_name}: {e}") from e
+    
+    async def subscribe_to_resource(self, server_name: str, uri: str) -> None:
+        """
+        Subscribe to updates for a specific resource on a specific server.
+        
+        Args:
+            server_name: The name of the server.
+            uri: The URI of the resource to subscribe to.
+            
+        Raises:
+            ValueError: If the server is not found.
+            MCPAPIError: If the server returns an error.
+        """
+        server = self.get_server(server_name)
+        if not server:
+            raise ValueError(f"Server '{server_name}' not found.")
+        
+        try:
+            await server.subscribe_to_resource(uri)
+            logger.debug(f"Subscribed to resource: {uri} on server {server_name}")
+        except Exception as e:
+            logger.error(f"Error subscribing to resource {uri} on server {server_name}: {e}")
+            raise MCPAPIError(f"Failed to subscribe to resource {uri} on server {server_name}: {e}") from e
+    
+    async def unsubscribe_from_resource(self, server_name: str, uri: str) -> None:
+        """
+        Unsubscribe from updates for a specific resource on a specific server.
+        
+        Args:
+            server_name: The name of the server.
+            uri: The URI of the resource to unsubscribe from.
+            
+        Raises:
+            ValueError: If the server is not found.
+            MCPAPIError: If the server returns an error.
+        """
+        server = self.get_server(server_name)
+        if not server:
+            raise ValueError(f"Server '{server_name}' not found.")
+        
+        try:
+            await server.unsubscribe_from_resource(uri)
+            logger.debug(f"Unsubscribed from resource: {uri} on server {server_name}")
+        except Exception as e:
+            logger.error(f"Error unsubscribing from resource {uri} on server {server_name}: {e}")
+            raise MCPAPIError(f"Failed to unsubscribe from resource {uri} on server {server_name}: {e}") from e
         
     async def __aenter__(self):
         """Enter async context."""

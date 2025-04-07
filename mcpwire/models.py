@@ -29,12 +29,35 @@ class ToolDefinition(BaseModel):
     description: Optional[str] = Field(None, description="A description of what the tool does.")
     parameters: Optional[ToolParameterSchema] = Field(None, description="The parameters the tool accepts, described as an OpenAPI Schema Object.")
 
+class ResourceTemplate(BaseModel):
+    """Represents a template for creating dynamic resources."""
+    uri_template: str = Field(..., alias="uriTemplate", description="URI template following RFC 6570.")
+    name: str = Field(..., description="Human-readable name for this resource type.")
+    description: Optional[str] = Field(None, description="Description of this resource type.")
+    mime_type: Optional[str] = Field(None, alias="mimeType", description="MIME type for all matching resources.")
+    
+    class Config:
+        populate_by_name = True
+
 class Resource(BaseModel):
-    """Represents a resource managed by the MCP server (e.g., files, session state)."""
-    id: str = Field(..., description="Unique identifier for the resource.")
-    name: Optional[str] = Field(None, description="A user-friendly name for the resource.")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Arbitrary metadata associated with the resource.")
-    # Add other common resource fields based on MCP spec (e.g., content_type, size, created_at)
+    """Represents a resource managed by the MCP server."""
+    uri: str = Field(..., description="Unique identifier for the resource.")
+    name: str = Field(..., description="Human-readable name for the resource.")
+    description: Optional[str] = Field(None, description="Description of this resource.")
+    mime_type: Optional[str] = Field(None, alias="mimeType", description="MIME type of the resource.")
+    
+    class Config:
+        populate_by_name = True
+
+class ResourceContent(BaseModel):
+    """Represents content of a resource."""
+    uri: str = Field(..., description="The URI of the resource.")
+    mime_type: Optional[str] = Field(None, alias="mimeType", description="MIME type of the resource.")
+    text: Optional[str] = Field(None, description="Text content for text resources.")
+    blob: Optional[str] = Field(None, description="Base64 encoded content for binary resources.")
+    
+    class Config:
+        populate_by_name = True
 
 # --- Request Models ---
 
@@ -108,6 +131,11 @@ class ListToolsResponse(BaseModel):
     tools: List[ToolDefinition]
 
 class ListResourcesResponse(BaseModel):
-    """Response body for the GET /resources endpoint."""
-    resources: List[Resource]
+    """Response body for the resources/list endpoint."""
+    resources: List[Resource] = Field(default_factory=list, description="List of available concrete resources.")
+    templates: List[ResourceTemplate] = Field(default_factory=list, description="List of available resource templates.")
+
+class ReadResourceResponse(BaseModel):
+    """Response body for the resources/read endpoint."""
+    contents: List[ResourceContent] = Field(..., description="List of resource contents.")
 

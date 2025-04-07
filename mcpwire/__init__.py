@@ -35,10 +35,13 @@ from .models import (
     PromptUsage,
     ListToolsResponse,
     ListResourcesResponse,
+    ReadResourceResponse,
     ServerMetadata,
     # Core Objects
     ToolDefinition,
     Resource,
+    ResourceTemplate,
+    ResourceContent,
     ToolParameterSchema,
     ToolParameterProperty,
 )
@@ -74,11 +77,14 @@ __all__ = [
     "PromptUsage",
     "ListToolsResponse",
     "ListResourcesResponse",
+    "ReadResourceResponse",
     "ServerMetadata",
 
     # Core Objects
     "ToolDefinition",
     "Resource",
+    "ResourceTemplate",
+    "ResourceContent",
     "ToolParameterSchema",
     "ToolParameterProperty",
 

@@ -61,21 +61,53 @@ Example mcp.json:
       "api_key": null,
       "timeout": 60,
       "transport": "sse",
-      "description": "Local development server (e.g., fast-agent)"
+      "description": "Local development server (e.g., fast-agent)",
+      "resources": {
+        "enabled": true,
+        "auto_subscribe": ["file:///workspace/shared/*"],
+        "default_templates": [
+          {
+            "uri_template": "file:///workspace/{path}",
+            "name": "Workspace File",
+            "description": "Access files in the workspace directory"
+          },
+          {
+            "uri_template": "db://customers/{customer_id}",
+            "name": "Customer Record",
+            "description": "Access customer data from the database",
+            "mime_type": "application/json"
+          }
+        ]
+      }
     },
     "stdio_server": {
       "transport": "stdio",
       "command": "python",
       "args": ["-m", "mcp.server.cli"],
       "timeout": 60,
-      "description": "Local stdio server"
+      "description": "Local stdio server",
+      "resources": {
+        "enabled": false
+      }
     },
     "remote_dev": {
       "base_url": "https://dev-mcp.example.com",
       "api_key": "dev-secret-key-abc",
       "timeout": 90,
       "transport": "sse",
-      "description": "Remote development/testing server"
+      "description": "Remote development/testing server",
+      "resources": {
+        "enabled": true,
+        "auto_subscribe": ["screen://capture/*"],
+        "default_templates": [
+          {
+            "uri_template": "screen://capture/{timestamp}",
+            "name": "Screen Capture",
+            "description": "Access screenshots captured during browsing",
+            "mime_type": "image/png"
+          }
+        ]
+      }
     },
     "production": {
       "base_url": "https://mcp.example.com",
@@ -97,6 +129,14 @@ Example mcp.json:
   - `command`: (Required for stdio) The command to execute.
   - `args`: (Required for stdio) Arguments for the command.
   - `description`: (Optional) Description.
+  - `resources`: (Optional) Configuration for MCP resources.
+    - `enabled`: (Required) Whether resources are enabled for this server.
+    - `auto_subscribe`: (Optional) List of resource URI patterns to automatically subscribe to.
+    - `default_templates`: (Optional) List of resource templates that define dynamic resources.
+      - `uri_template`: (Required) URI template following RFC 6570.
+      - `name`: (Required) Human-readable name for this resource type.
+      - `description`: (Optional) Description of this resource type.
+      - `mime_type`: (Optional) MIME type for all matching resources.
 
 ## Quickstart (Async)
 
@@ -140,6 +180,29 @@ async def main():
             # Call a tool
             tool_result = await mcp.call_tool("search", {"query": "MCP protocol"})
             logging.info(f"Tool result: {tool_result}")
+            
+            # Working with resources
+            # List available resources
+            resources_result = await mcp.list_resources()
+            logging.info(f"Found {len(resources_result.resources)} resources and {len(resources_result.templates)} templates")
+            
+            # Display available resources
+            for resource in resources_result.resources:
+                logging.info(f"Resource: {resource.name} (URI: {resource.uri})")
+            
+            # Read a resource content (if any resources available)
+            if resources_result.resources:
+                resource_uri = resources_result.resources[0].uri
+                content = await mcp.read_resource(resource_uri)
+                logging.info(f"Read resource content with URI: {resource_uri}")
+                
+                # Subscribe to resource updates
+                await mcp.subscribe_to_resource(resource_uri)
+                logging.info(f"Subscribed to resource: {resource_uri}")
+                
+                # Later, unsubscribe when no longer needed
+                await mcp.unsubscribe_from_resource(resource_uri)
+                logging.info(f"Unsubscribed from resource: {resource_uri}")
             
     except (MCPAPIError, MCPConnectionError, MCPDataError) as e:
         logging.error(f"MCP Error: {e}")
@@ -185,6 +248,21 @@ async def main():
             messages = await multi_client.get_prompt("math", "calculate", {"expression": "2+2"})
             for msg in messages:
                 logging.info(f"Message: {msg.content}")
+                
+            # Working with resources from multiple servers
+            # List resources from a specific server
+            math_resources = await multi_client.list_resources("math")
+            logging.info(f"Math server has {len(math_resources.resources)} resources")
+            
+            # Read a resource from a specific server (if any available)
+            if math_resources.resources:
+                math_resource_uri = math_resources.resources[0].uri
+                math_content = await multi_client.read_resource("math", math_resource_uri)
+                logging.info(f"Read math resource: {math_resource_uri}")
+                
+                # Subscribe and unsubscribe to resource updates
+                await multi_client.subscribe_to_resource("math", math_resource_uri)
+                await multi_client.unsubscribe_from_resource("math", math_resource_uri)
                 
     except Exception as e:
         logging.error(f"MultiServerMCPClient error: {e}", exc_info=True)
@@ -258,3 +336,75 @@ The GitHub Actions workflow will automatically build and publish the package to 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Troubleshooting Resources
+
+When working with MCP resources, the following issues might occur:
+
+### Resource Errors
+
+1. **Server Not Found**: When using `MultiServerMCPClient`, ensure the server name exists before accessing resources.
+   ```python
+   # This will raise ValueError if "math_server" is not connected
+   resources = await multi_client.list_resources("math_server")
+   ```
+
+2. **Resource Not Found**: Ensure the resource URI is valid and accessible.
+   ```python
+   try:
+       resource = await client.read_resource("file:///nonexistent/file.txt")
+   except MCPAPIError as e:
+       print(f"Resource error: {e}")
+   ```
+
+3. **Binary Resource Handling**: When dealing with binary resources (images, PDFs, etc.):
+   ```python
+   import base64
+   
+   # Read a binary resource
+   response = await client.read_resource("image:///logo.png")
+   if response.contents[0].blob:
+       # Decode base64 data
+       binary_data = base64.b64decode(response.contents[0].blob)
+       with open("logo.png", "wb") as f:
+           f.write(binary_data)
+   ```
+
+4. **Template Parameters**: When using templates, ensure all required parameters are provided:
+   ```python
+   # For a template like "file:///workspace/{path}"
+   file_uri = "file:///workspace/documents/report.pdf"  # Provide the complete URI
+   ```
+
+5. **Subscription Leaks**: Always unsubscribe from resources when no longer needed:
+   ```python
+   try:
+       await client.subscribe_to_resource("screen://capture/latest")
+       # Do work with the resource...
+   finally:
+       # Ensure unsubscribe happens even if errors occur
+       await client.unsubscribe_from_resource("screen://capture/latest")
+   ```
+
+### Common Configuration Issues
+
+1. **Missing Resource Configuration**: Ensure the server has resources enabled:
+   ```json
+   "resources": {
+     "enabled": true
+   }
+   ```
+
+2. **Invalid Template Format**: Resource templates must follow RFC 6570 URI template format:
+   ```json
+   "uri_template": "file:///workspace/{path}",  // Correct
+   "uri_template": "file:///workspace/<path>",  // Incorrect
+   ```
+
+3. **Incorrect MIME Types**: Use standard MIME types for resources to ensure proper handling:
+   ```json
+   "mime_type": "application/json"      // For JSON data
+   "mime_type": "text/plain"            // For text files
+   "mime_type": "image/png"             // For PNG images
+   "mime_type": "application/pdf"       // For PDF documents
+   ```

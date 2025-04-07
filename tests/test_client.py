@@ -26,7 +26,12 @@ from mcpwire import (
     MCPTimeoutError,
     MCPDataError,
     MCPError,
-    ServerMetadata
+    ServerMetadata,
+    Resource,
+    ResourceTemplate,
+    ResourceContent,
+    ListResourcesResponse,
+    ReadResourceResponse
 )
 from langchain_core.messages import HumanMessage, AIMessage
 
@@ -75,7 +80,18 @@ def sample_config_dict() -> dict:
                 "transport": "sse",
                 "api_key": None,
                 "timeout": 30,
-                "description": "Local Test Server"
+                "description": "Local Test Server",
+                "resources": {
+                    "enabled": True,
+                    "auto_subscribe": ["file:///workspace/*"],
+                    "default_templates": [
+                        {
+                            "uri_template": "file:///workspace/{path}",
+                            "name": "Workspace File",
+                            "description": "Access workspace files"
+                        }
+                    ]
+                }
             },
             "remote": {
                 "base_url": "https://remote-mcp.test",
@@ -105,6 +121,30 @@ def mock_config_file(tmp_path: Path, sample_config_dict: dict) -> Path:
     with open(config_file, 'w') as f:
         json.dump(sample_config_dict, f)
     return config_file
+
+@pytest.fixture
+def mock_resources():
+    """Provides sample resources for testing."""
+    return [
+        Resource(uri="file:///workspace/document.txt", name="Document", description="A text document", mime_type="text/plain"),
+        Resource(uri="file:///workspace/image.png", name="Image", description="An image", mime_type="image/png")
+    ]
+
+@pytest.fixture
+def mock_resource_templates():
+    """Provides sample resource templates for testing."""
+    return [
+        ResourceTemplate(uri_template="file:///workspace/{path}", name="Workspace File", description="Access workspace files"),
+        ResourceTemplate(uri_template="db://users/{user_id}", name="User Record", description="Access user records", mime_type="application/json")
+    ]
+
+@pytest.fixture
+def mock_resource_contents():
+    """Provides sample resource contents for testing."""
+    return [
+        ResourceContent(uri="file:///workspace/document.txt", mime_type="text/plain", text="This is a sample document."),
+        ResourceContent(uri="file:///workspace/image.png", mime_type="image/png", blob="SGVsbG8gV29ybGQ=")  # base64 encoded "Hello World"
+    ]
 
 # --- Test Cases ---
 
@@ -395,10 +435,10 @@ async def test_multi_client_get_tools(mock_multi_client):
     """Test getting tools from MultiServerMCPClient."""
     # Setup mock return value
     mock_tools = [MagicMock(), MagicMock()]
-    mock_multi_client._mcpwire.get_tools = AsyncMock(return_value=mock_tools)  # Change to AsyncMock
+    mock_multi_client._mcpwire.get_tools = MagicMock(return_value=mock_tools)
     
-    # Call the get_tools method - calling as async method
-    result = await mock_multi_client.get_tools()  # Add await here
+    # Call the get_tools method - synchronous method
+    result = mock_multi_client.get_tools()
     
     # Check the result
     mock_multi_client._mcpwire.get_tools.assert_called_once()
@@ -462,4 +502,185 @@ async def test_missing_base_url_for_sse():
     client = MCPClient(transport="sse", base_url=None)
     with pytest.raises(MCPConnectionError, match="Base URL is required for SSE transport"):
         await client._initialize()
+
+# == Resource Tests ==
+
+@pytest.mark.asyncio
+async def test_list_resources(mock_client, mock_resources, mock_resource_templates):
+    """Test listing resources."""
+    # Setup mock
+    mock_response = MagicMock()
+    mock_response.resources = mock_resources
+    mock_response.templates = mock_resource_templates
+    mock_client._mcpwire.list_resources.return_value = mock_response
+    
+    # Call the method
+    result = await mock_client.list_resources()
+    
+    # Check results
+    mock_client._mcpwire.list_resources.assert_called_once()
+    assert isinstance(result, ListResourcesResponse)
+    assert len(result.resources) == len(mock_resources)
+    assert len(result.templates) == len(mock_resource_templates)
+    
+    # Check first resource
+    assert result.resources[0].uri == mock_resources[0].uri
+    assert result.resources[0].name == mock_resources[0].name
+    assert result.resources[0].description == mock_resources[0].description
+    assert result.resources[0].mime_type == mock_resources[0].mime_type
+    
+    # Check first template
+    assert result.templates[0].uri_template == mock_resource_templates[0].uri_template
+    assert result.templates[0].name == mock_resource_templates[0].name
+    assert result.templates[0].description == mock_resource_templates[0].description
+
+@pytest.mark.asyncio
+async def test_read_resource(mock_client, mock_resource_contents):
+    """Test reading a resource."""
+    # Setup mock
+    mock_response = MagicMock()
+    mock_response.contents = mock_resource_contents
+    mock_client._mcpwire.read_resource.return_value = mock_response
+    
+    # Call the method
+    result = await mock_client.read_resource("file:///workspace/document.txt")
+    
+    # Check results
+    mock_client._mcpwire.read_resource.assert_called_once_with("file:///workspace/document.txt")
+    assert isinstance(result, ReadResourceResponse)
+    assert len(result.contents) == len(mock_resource_contents)
+    
+    # Check first content
+    assert result.contents[0].uri == mock_resource_contents[0].uri
+    assert result.contents[0].mime_type == mock_resource_contents[0].mime_type
+    assert result.contents[0].text == mock_resource_contents[0].text
+    
+    # Check second content (binary)
+    assert result.contents[1].uri == mock_resource_contents[1].uri
+    assert result.contents[1].mime_type == mock_resource_contents[1].mime_type
+    assert result.contents[1].blob == mock_resource_contents[1].blob
+
+@pytest.mark.asyncio
+async def test_read_resource_error(mock_client):
+    """Test error handling when reading a resource."""
+    # Setup mock to raise exception
+    mock_client._mcpwire.read_resource.side_effect = Exception("Failed to read resource")
+    
+    # Call the method and expect exception
+    with pytest.raises(MCPAPIError, match="Failed to read resource"):
+        await mock_client.read_resource("invalid:///uri")
+
+@pytest.mark.asyncio
+async def test_subscribe_to_resource(mock_client):
+    """Test subscribing to a resource."""
+    # Setup mock
+    mock_client._mcpwire.subscribe_to_resource.return_value = None
+    
+    # Call the method
+    await mock_client.subscribe_to_resource("file:///workspace/document.txt")
+    
+    # Check results
+    mock_client._mcpwire.subscribe_to_resource.assert_called_once_with("file:///workspace/document.txt")
+
+@pytest.mark.asyncio
+async def test_unsubscribe_from_resource(mock_client):
+    """Test unsubscribing from a resource."""
+    # Setup mock
+    mock_client._mcpwire.unsubscribe_from_resource.return_value = None
+    
+    # Call the method
+    await mock_client.unsubscribe_from_resource("file:///workspace/document.txt")
+    
+    # Check results
+    mock_client._mcpwire.unsubscribe_from_resource.assert_called_once_with("file:///workspace/document.txt")
+
+# == MultiServerMCPClient Resource Tests ==
+
+@pytest.mark.asyncio
+async def test_multi_client_list_resources(mock_multi_client, mock_resources, mock_resource_templates):
+    """Test listing resources from a specific server with MultiServerMCPClient."""
+    # Setup mock server
+    mock_server = AsyncMock()
+    mock_response = MagicMock()
+    mock_response.resources = mock_resources
+    mock_response.templates = mock_resource_templates
+    mock_server.list_resources.return_value = mock_response
+    
+    # Setup get_server to return the mock server
+    mock_multi_client._mcpwire.get_server = MagicMock(return_value=mock_server)
+    
+    # Call the method
+    result = await mock_multi_client.list_resources("math_server")
+    
+    # Check results
+    mock_multi_client._mcpwire.get_server.assert_called_once_with("math_server")
+    mock_server.list_resources.assert_called_once()
+    assert isinstance(result, ListResourcesResponse)
+    assert len(result.resources) == len(mock_resources)
+    assert len(result.templates) == len(mock_resource_templates)
+
+@pytest.mark.asyncio
+async def test_multi_client_read_resource(mock_multi_client, mock_resource_contents):
+    """Test reading a resource from a specific server with MultiServerMCPClient."""
+    # Setup mock server
+    mock_server = AsyncMock()
+    mock_response = MagicMock()
+    mock_response.contents = mock_resource_contents
+    mock_server.read_resource.return_value = mock_response
+    
+    # Setup get_server to return the mock server
+    mock_multi_client._mcpwire.get_server = MagicMock(return_value=mock_server)
+    
+    # Call the method
+    result = await mock_multi_client.read_resource("math_server", "file:///workspace/document.txt")
+    
+    # Check results
+    mock_multi_client._mcpwire.get_server.assert_called_once_with("math_server")
+    mock_server.read_resource.assert_called_once_with("file:///workspace/document.txt")
+    assert isinstance(result, ReadResourceResponse)
+    assert len(result.contents) == len(mock_resource_contents)
+
+@pytest.mark.asyncio
+async def test_multi_client_subscribe_to_resource(mock_multi_client):
+    """Test subscribing to a resource from a specific server with MultiServerMCPClient."""
+    # Setup mock server
+    mock_server = AsyncMock()
+    mock_server.subscribe_to_resource.return_value = None
+    
+    # Setup get_server to return the mock server
+    mock_multi_client._mcpwire.get_server = MagicMock(return_value=mock_server)
+    
+    # Call the method
+    await mock_multi_client.subscribe_to_resource("math_server", "file:///workspace/document.txt")
+    
+    # Check results
+    mock_multi_client._mcpwire.get_server.assert_called_once_with("math_server")
+    mock_server.subscribe_to_resource.assert_called_once_with("file:///workspace/document.txt")
+
+@pytest.mark.asyncio
+async def test_multi_client_unsubscribe_from_resource(mock_multi_client):
+    """Test unsubscribing from a resource from a specific server with MultiServerMCPClient."""
+    # Setup mock server
+    mock_server = AsyncMock()
+    mock_server.unsubscribe_from_resource.return_value = None
+    
+    # Setup get_server to return the mock server
+    mock_multi_client._mcpwire.get_server = MagicMock(return_value=mock_server)
+    
+    # Call the method
+    await mock_multi_client.unsubscribe_from_resource("math_server", "file:///workspace/document.txt")
+    
+    # Check results
+    mock_multi_client._mcpwire.get_server.assert_called_once_with("math_server")
+    mock_server.unsubscribe_from_resource.assert_called_once_with("file:///workspace/document.txt")
+
+@pytest.mark.asyncio
+async def test_multi_client_server_not_found(mock_multi_client):
+    """Test error handling when the server is not found."""
+    # Setup get_server to return None (server not found)
+    mock_multi_client._mcpwire.get_server = MagicMock(return_value=None)
+    
+    # Call the method and expect exception
+    with pytest.raises(ValueError, match="Server 'nonexistent_server' not found"):
+        await mock_multi_client.list_resources("nonexistent_server")
 
