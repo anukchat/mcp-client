@@ -1,6 +1,6 @@
 # MCP Python Client
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://img.shields.io/pypi/v/mcpwire.svg)](https://pypi.org/project/mcpwire/)[![Python Version](https://img.shields.io/pypi/pyversions/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Tests](https://github.com/anukchat/mcpwire/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![PyPI version](https://img.shields.io/pypi/v/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Python Version](https://img.shields.io/pypi/pyversions/mcpwire.svg)](https://pypi.org/project/mcpwire/) [![Tests](https://github.com/anukchat/mcpwire/actions/workflows/test.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/test.yml)
 [![Publish](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml)
 [![Coverage Status](https://codecov.io/gh/anukchat/mcpwire/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcpwire)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
