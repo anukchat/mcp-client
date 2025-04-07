@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0] - 2023-05-15
+## [0.5.0] - 2025-04-15
 
 ### Added
 - Complete support for MCP Resources API
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated tests to cover resource functionality
 - Updated documentation with resource usage examples
 
-## [0.4.1] - 2023-04-06
+## [0.4.1] - 2025-04-06
 
 ### Added
 - Migrated to official MCP library and langchain-mcp-adapters
@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed support for HTTP transport (use SSE instead)
 - Removed synchronous API (use async methods with `await` instead)
 
-## [0.3.0] - 2023-03-15
+## [0.3.0] - 2025-03-01
 
 ### Added
 - Enhanced configuration from mcp.json
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling and validation
 - Updated documentation
 
-## [0.2.0] - 2023-02-01
+## [0.2.0] - 2025-02-01
 
 ### Added
 - Support for sending prompts to the MCP server
@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling
 - Updated documentation
 
-## [0.1.0] - 2023-01-15
+## [0.1.0] - 2025-01-15
 
 ### Added
 - Initial release of the MCP client
