@@ -4,6 +4,7 @@
 [![Publish](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml/badge.svg)](https://github.com/anukchat/mcpwire/actions/workflows/publish.yml)
 [![Coverage Status](https://codecov.io/gh/anukchat/mcpwire/branch/main/graph/badge.svg)](https://codecov.io/gh/anukchat/mcpwire)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![GitHub stars](https://img.shields.io/github/stars/anukchat/mcpwire)](https://github.com/anukchat/mcpwire/stargazers)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/mcpwire.svg)](https://pypi.org/project/mcpwire/)
 [![Documentation Status](https://readthedocs.org/projects/mcpwire/badge/?version=latest)](https://mcpwire.readthedocs.io/en/latest/?badge=latest)
 

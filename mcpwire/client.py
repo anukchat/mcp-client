@@ -384,10 +384,10 @@ class MCPClient:
             return ListResourcesResponse(
                 resources=[
                     Resource(
-                        uri=resource.uri,
+                        uri=str(resource.uri),  # Convert URI to string to avoid validation issues
                         name=resource.name,
                         description=resource.description,
-                        mime_type=resource.mime_type
+                        mime_type=getattr(resource, "mimeType", None) or getattr(resource, "mime_type", None)
                     ) for resource in response.resources or []
                 ],
                 templates=[
@@ -395,7 +395,7 @@ class MCPClient:
                         uri_template=template.uri_template,
                         name=template.name,
                         description=template.description,
-                        mime_type=template.mime_type
+                        mime_type=getattr(template, "mimeType", None) or getattr(template, "mime_type", None)
                     ) for template in getattr(response, 'templates', []) or []
                 ]
             )
@@ -423,24 +423,27 @@ class MCPClient:
             response = await self._mcpwire.read_resource(uri)
             
             # Convert to our response format
-            return ReadResourceResponse(
-                contents=[
-                    ResourceContent(
-                        uri=content.uri,
-                        mime_type=content.mime_type,
-                        text=content.text,
-                        blob=content.blob
-                    ) for content in response.contents
-                ]
-            )
+            contents = []
+            for content in response.contents:
+                # Handle different content types from the MCP library
+                contents.append(ResourceContent(
+                    uri=str(content.uri),
+                    mime_type=getattr(content, "mimeType", None) or getattr(content, "mime_type", None),
+                    text=getattr(content, "text", None),
+                    blob=getattr(content, "blob", None)
+                ))
+            
+            return ReadResourceResponse(contents=contents)
         except Exception as e:
             logger.error(f"Error reading resource {uri}: {e}")
             raise MCPAPIError(f"Failed to read resource {uri}: {e}") from e
     
     async def subscribe_to_resource(self, uri: str) -> None:
         """
-        Subscribe to updates for a specific resource.
-        The server will send notifications when the resource changes.
+        Subscribe to updates for a resource.
+        
+        Note: This is implemented as a no-op if the underlying MCP client 
+        does not support resource subscription.
         
         Args:
             uri: The URI of the resource to subscribe to.
@@ -452,15 +455,20 @@ class MCPClient:
         """
         await self._initialize()
         try:
-            await self._mcpwire.subscribe_to_resource(uri)
-            logger.debug(f"Subscribed to resource: {uri}")
+            if hasattr(self._mcpwire, 'subscribe_to_resource'):
+                await self._mcpwire.subscribe_to_resource(uri)
+            else:
+                logger.warning(f"Resource subscription not supported by this MCP implementation")
         except Exception as e:
             logger.error(f"Error subscribing to resource {uri}: {e}")
             raise MCPAPIError(f"Failed to subscribe to resource {uri}: {e}") from e
     
     async def unsubscribe_from_resource(self, uri: str) -> None:
         """
-        Unsubscribe from updates for a specific resource.
+        Unsubscribe from updates for a resource.
+        
+        Note: This is implemented as a no-op if the underlying MCP client 
+        does not support resource subscription.
         
         Args:
             uri: The URI of the resource to unsubscribe from.
@@ -472,8 +480,10 @@ class MCPClient:
         """
         await self._initialize()
         try:
-            await self._mcpwire.unsubscribe_from_resource(uri)
-            logger.debug(f"Unsubscribed from resource: {uri}")
+            if hasattr(self._mcpwire, 'unsubscribe_from_resource'):
+                await self._mcpwire.unsubscribe_from_resource(uri)
+            else:
+                logger.warning(f"Resource subscription not supported by this MCP implementation")
         except Exception as e:
             logger.error(f"Error unsubscribing from resource {uri}: {e}")
             raise MCPAPIError(f"Failed to unsubscribe from resource {uri}: {e}") from e
@@ -579,10 +589,10 @@ class MultiServerMCPClient:
             return ListResourcesResponse(
                 resources=[
                     Resource(
-                        uri=resource.uri,
+                        uri=str(resource.uri),  # Convert URI to string to avoid validation issues
                         name=resource.name,
                         description=resource.description,
-                        mime_type=resource.mime_type
+                        mime_type=getattr(resource, "mimeType", None) or getattr(resource, "mime_type", None)
                     ) for resource in response.resources or []
                 ],
                 templates=[
@@ -590,7 +600,7 @@ class MultiServerMCPClient:
                         uri_template=template.uri_template,
                         name=template.name,
                         description=template.description,
-                        mime_type=template.mime_type
+                        mime_type=getattr(template, "mimeType", None) or getattr(template, "mime_type", None)
                     ) for template in getattr(response, 'templates', []) or []
                 ]
             )
@@ -621,16 +631,17 @@ class MultiServerMCPClient:
             response = await server.read_resource(uri)
             
             # Convert to our response format
-            return ReadResourceResponse(
-                contents=[
-                    ResourceContent(
-                        uri=content.uri,
-                        mime_type=content.mime_type,
-                        text=content.text,
-                        blob=content.blob
-                    ) for content in response.contents
-                ]
-            )
+            contents = []
+            for content in response.contents:
+                # Handle different content types from the MCP library
+                contents.append(ResourceContent(
+                    uri=str(content.uri),
+                    mime_type=getattr(content, "mimeType", None) or getattr(content, "mime_type", None),
+                    text=getattr(content, "text", None),
+                    blob=getattr(content, "blob", None)
+                ))
+            
+            return ReadResourceResponse(contents=contents)
         except Exception as e:
             logger.error(f"Error reading resource {uri} from server {server_name}: {e}")
             raise MCPAPIError(f"Failed to read resource {uri} from server {server_name}: {e}") from e

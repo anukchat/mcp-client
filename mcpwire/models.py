@@ -8,6 +8,7 @@ Adjust fields as necessary based on the specific MCP server implementation or ve
 
 from pydantic import BaseModel, Field, Json
 from typing import List, Dict, Any, Optional, Union
+from pydantic.networks import AnyUrl, HttpUrl
 
 # --- Core MCP Objects ---
 
