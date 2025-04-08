@@ -133,7 +133,7 @@ print(f"Tool result: {result}")
 
 ### Working with Resources
 
-Version 0.5.0 adds comprehensive support for MCP resources. Here's how to use them:
+Version 0.5.1 adds comprehensive support for MCP resources. Here's how to use them:
 
 #### Listing Resources and Templates
 
@@ -310,9 +310,9 @@ except MCPError as e:
     print(f"General MCP error: {e}")
 ```
 
-## Migration from v0.4.1 to v0.5.0
+## Migration from v0.4.1 to v0.5.1
 
-Version 0.5.0 adds comprehensive support for MCP Resources:
+Version 0.5.1 adds comprehensive support for MCP Resources:
 
 1. **Resource API**: New methods for working with resources (`list_resources()`, `read_resource()`, etc.)
 2. **Configuration**: Added resource configuration options in mcp.json

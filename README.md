@@ -273,9 +273,9 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Migration from v0.4.1 to v0.5.0
+## Migration from v0.4.1 to v0.5.1
 
-Version 0.5.0 adds comprehensive support for MCP Resources:
+Version 0.5.1 adds comprehensive support for MCP Resources:
 
 1. **Resource API**: New methods for working with resources (`list_resources()`, `read_resource()`, etc.)
 2. **Configuration**: Added resource configuration options in mcp.json
@@ -331,8 +331,8 @@ To release a new version:
 4. Create and push a new tag that matches the version:
 
 ```bash
-git tag -a v0.5.0 -m "Release v0.5.0"
-git push origin v0.5.0
+git tag -a v0.5.1 -m "Release v0.5.1"
+git push origin v0.5.1
 ```
 
 The GitHub Actions workflow will automatically build and publish the package to PyPI.
